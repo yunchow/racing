@@ -39,5 +39,5 @@ public class DemoStage extends Stage<String> {
 
 ### SEDA
 [Matthew David Welsh--An Architecture for Highly Concurrent](http://www.eecs.harvard.edu/~mdw/papers/mdw-phdthesis.pdf)
-> SEDA将应用分通过事件队列链接的网状Stage。
+> SEDA将应用分为若干由事件队列链接的网状Stage，从而形成一个系统计算拓扑。
 
