@@ -24,7 +24,7 @@ public class RacingAutoConfiguration {
         NamedTopology topology = new NamedTopology("RacingTopology");
         if (stages != null) {
             topology.setStages(stages);
-            //topology.start();
+            topology.start();
         }
         return topology;
     }
