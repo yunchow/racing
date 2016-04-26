@@ -17,16 +17,17 @@ import java.util.ArrayList;
 @Component
 public class DemoStage extends Stage<String> {
 
+    private ArrayList<Handler<String>> outputHandlers = Lists.newArrayList();
+
     public DemoStage() {
         super("DemoStage");
+        outputHandlers.add(new OutputHandler<String>());
     }
 
     @PostConstruct
     public void init() {
         setSink(new UuidSink(2000));
         setDecoder(new StringDecoder());
-        ArrayList<Handler<String>> outputHandlers = Lists.newArrayList();
-        outputHandlers.add(new OutputHandler<String>());
         setHandlers(outputHandlers);
     }
 }

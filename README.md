@@ -1,6 +1,6 @@
 # SEDA Java implementation --- racing
 
-### java实现的 *seda* 架构
+### java实现的 **seda** 架构
 
 * 与spring-boot完美集成，简单易用
 * 核心实现不依赖任何容器，可随意在各种项目中集成
@@ -17,18 +17,22 @@
 @Component
 public class DemoStage extends Stage<String> {
 
+    private ArrayList<Handler<String>> outputHandlers = Lists.newArrayList();
+
     public DemoStage() {
         super("DemoStage");
+        outputHandlers.add(new OutputHandler<String>());
     }
 
     @PostConstruct
     public void init() {
         setSink(new UuidSink(2000));
         setDecoder(new StringDecoder());
-        ArrayList<Handler<String>> outputHandlers = Lists.newArrayList();
-        outputHandlers.add(new OutputHandler<String>());
         setHandlers(outputHandlers);
     }
 }
 
 ```
+
+### SEDA
+[Matthew David Welsh--An Architecture for Highly Concurrent](http://www.eecs.harvard.edu/~mdw/papers/mdw-phdthesis.pdf)
