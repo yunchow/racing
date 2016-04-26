@@ -1,7 +1,8 @@
 # SEDA Java implementation --- racing
 
 ### java实现的 **seda** 架构
-> 架构图
+> 架构图如下
+
 ![架构图](racing_arc.png)
 
 * 与spring-boot完美集成，简单易用
