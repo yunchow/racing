@@ -58,6 +58,9 @@ public class Scheduler<T> {
         }
         dispatcher = new Dispatcher<T>(executors);
 
+        this.acceptor.reset();
+        this.acceptorThread = new NamedThread(Preconditions.checkNotNull(acceptor), name + "-Acceptor");
+
         twcm5 = new TimingWindowCounter(5, 1);
         twcm10 = new TimingWindowCounter(10, 1);
         twcm30 = new TimingWindowCounter(30, 1);
@@ -115,8 +118,6 @@ public class Scheduler<T> {
     }
 
     public void acceptSinkEventAndAwait() {
-        this.acceptor.reset();
-        this.acceptorThread = new NamedThread(Preconditions.checkNotNull(acceptor), name + "-Acceptor");
         this.acceptorThread.start();
         auditor.info("[Scheduler][{}] acceptor is ready({})", name, acceptorThread.getState().name());
     }

@@ -18,7 +18,7 @@ public class Stage<T> implements Runnable {
     private volatile int workSize = 5;
     private volatile boolean init;
     private State state;
-    private Acceptor acceptor;
+    private Acceptor acceptor = new Acceptor();
     private Decoder<T> decoder;
     private Scheduler<T> scheduler;
     private List<Handler<T>> handlers;
@@ -40,15 +40,22 @@ public class Stage<T> implements Runnable {
     }
 
     public void initStage() {
+        if (init) {
+            return;
+        }
+        init = true;
         state = State.TERMINATED;
-        acceptor = new Acceptor();
         scheduler = new Scheduler<T>(name, workSize, parallelism);
-        scheduler.setDecoder(decoder);
-        scheduler.setHandlers(handlers);
+        scheduler.setDecoder(Preconditions.checkNotNull(decoder));
+        scheduler.setHandlers(Preconditions.checkNotNull(handlers));
         control = new Control(scheduler);
         metrics = new Metrics();
         metrics.setStageName(name);
-        init = true;
+        metrics.setStartTime(new Date());
+        acceptor.setSink(getSink());
+        scheduler.setAcceptor(Preconditions.checkNotNull(acceptor));
+        scheduler.resetState();
+        scheduler.renewScheduler();
     }
 
     public void refreshMetrics() {
@@ -105,12 +112,7 @@ public class Stage<T> implements Runnable {
     public void run() {
         this.state = State.RUNNING;
         metrics.setStartTime(new Date());
-        Preconditions.checkNotNull(acceptor);
         auditor.info("[Stage][{}] is starting", name);
-        acceptor.setSink(getSink());
-        scheduler.setAcceptor(acceptor);
-        scheduler.resetState();
-        scheduler.renewScheduler();
         scheduler.schedule();
     }
 
