@@ -1,6 +1,8 @@
 # SEDA Java implementation --- racing
 
 ### java实现的 **seda** 架构
+> 架构图
+![架构图](racing_arc.png)
 
 * 与spring-boot完美集成，简单易用
 * 核心实现不依赖任何容器，可随意在各种项目中集成
@@ -36,3 +38,7 @@ public class DemoStage extends Stage<String> {
 
 ### SEDA
 [Matthew David Welsh--An Architecture for Highly Concurrent](http://www.eecs.harvard.edu/~mdw/papers/mdw-phdthesis.pdf)
+> SEDA将应用分通过事件队列链接的网状Stage。
+
+> Stage组成：调度器，执行器，工作单元，接收者，分发者，控制器，性能监控，事件处理器
+
