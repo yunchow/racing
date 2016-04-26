@@ -28,6 +28,5 @@ public class DemoStage extends Stage<String> {
         ArrayList<Handler<String>> outputHandlers = Lists.newArrayList();
         outputHandlers.add(new OutputHandler<String>());
         setHandlers(outputHandlers);
-        //initStage();
     }
 }
