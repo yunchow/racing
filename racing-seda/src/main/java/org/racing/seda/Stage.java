@@ -17,7 +17,7 @@ public class Stage<T> implements Runnable {
     private volatile int parallelism = 3;
     private volatile int workSize = 5;
     private volatile boolean init;
-    private State state;
+    private State state = State.TERMINATED;
     private Acceptor acceptor = new Acceptor();
     private Decoder<T> decoder;
     private Scheduler<T> scheduler;
@@ -44,7 +44,6 @@ public class Stage<T> implements Runnable {
             return;
         }
         init = true;
-        state = State.TERMINATED;
         scheduler = new Scheduler<T>(name, workSize, parallelism);
         scheduler.setDecoder(Preconditions.checkNotNull(decoder));
         scheduler.setHandlers(Preconditions.checkNotNull(handlers));
