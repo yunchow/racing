@@ -118,6 +118,8 @@ public class Scheduler<T> {
     }
 
     public void acceptSinkEventAndAwait() {
+        this.acceptor.reset();
+        this.acceptorThread = new NamedThread(Preconditions.checkNotNull(acceptor), name + "-Acceptor");
         this.acceptorThread.start();
         auditor.info("[Scheduler][{}] acceptor is ready({})", name, acceptorThread.getState().name());
     }

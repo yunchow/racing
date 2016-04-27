@@ -53,7 +53,6 @@ public class Stage<T> implements Runnable {
         metrics.setStartTime(new Date());
         acceptor.setSink(getSink());
         scheduler.setAcceptor(Preconditions.checkNotNull(acceptor));
-        scheduler.resetState();
         scheduler.renewScheduler();
     }
 
@@ -112,6 +111,7 @@ public class Stage<T> implements Runnable {
         this.state = State.RUNNING;
         metrics.setStartTime(new Date());
         auditor.info("[Stage][{}] is starting", name);
+        scheduler.resetState();
         scheduler.schedule();
     }
 
