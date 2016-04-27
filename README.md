@@ -15,7 +15,16 @@
 * 项目依赖 racing-boot 子项目
 * 管理地址：http://localhost:8080/
 
-### 详细使用参考 racing-demo 子项目
+### 使用指南
+首先明确业务逻辑可划分为多个Stage，每个Stage负责一个逻辑计算，相互之间用消息队列传递消息。
+
+在实现Stage时，需要实现三大组件（在架构图中以绿色标出）
+1 Sink 输入队列
+2 Decoder 消息解码器
+3 Hander 事件处理器
+
+> 详细使用参考 racing-demo 子项目
+
 ```java
 @Component
 public class DemoStage extends Stage<String> {
