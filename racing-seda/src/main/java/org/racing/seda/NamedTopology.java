@@ -1,6 +1,7 @@
 package org.racing.seda;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,12 +11,15 @@ import java.util.stream.Collectors;
  */
 public class NamedTopology {
     protected Auditor auditor = Auditor.getAuditor();
+    private DumpDeamon dumpDeamon = new DumpDeamon(this);
+    protected Gson gson = new Gson();
     protected State state = State.TERMINATED;
     protected String name;
     private List<Stage<?>> stages;
 
     public NamedTopology(String name) {
         this.name = name;
+        this.dumpDeamon.start();
     }
 
     public void start() {
@@ -65,6 +69,16 @@ public class NamedTopology {
             stage.refreshMetrics();
             return stage.getMetrics();
         }).collect(Collectors.toList());
+    }
+
+    public void dumpTopology() {
+        if (stages == null) {
+            auditor.info("[NamedTopology][dumpTopology] stages is null");
+            return;
+        }
+        TopologySnapshort topologySnapshort = capatureTop();
+        String json = gson.toJson(topologySnapshort);
+        auditor.info("[NamedTopology][dumpTopology] {}", json);
     }
 
     public void shutdown() {

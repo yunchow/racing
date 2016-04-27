@@ -16,7 +16,7 @@
 * 管理地址：http://localhost:8080/
 
 ### 详细使用参考 racing-demo 子项目
-```
+```java
 @Component
 public class DemoStage extends Stage<String> {
 
