@@ -22,7 +22,7 @@
 
 1. `Sink` 输入队列
 2. `Decoder` 消息解码器
-3. `Hander` 事件处理器
+3. `Handler` 事件处理器
 
 > 详细使用参考 racing-demo 子项目
 
