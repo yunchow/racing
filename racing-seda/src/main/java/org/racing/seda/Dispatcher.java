@@ -1,6 +1,7 @@
 package org.racing.seda;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.Random;
@@ -19,9 +20,9 @@ public class Dispatcher<T> {
         Preconditions.checkState(this.executors.size() > 0);
     }
 
-    public void dispatch(HandlerAdapter<T> handlerAdapter) {
+    public ListenableFuture<Void> dispatch(HandlerAdapter<T> handlerAdapter) {
         Preconditions.checkNotNull(strategy);
-        strategy.selectExecutor(executors).execute(handlerAdapter);
+        return strategy.selectExecutor(executors).submit(handlerAdapter);
     }
 
     public Executor randomExecutor(List<Executor> executors) {

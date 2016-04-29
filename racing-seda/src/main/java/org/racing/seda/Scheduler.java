@@ -1,6 +1,9 @@
 package org.racing.seda;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.racing.common.NamedThread;
 import org.racing.common.TimingWindowCounter;
 
@@ -13,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by zhouyun on 2016/4/15.
  */
-public class Scheduler<T> {
+public class Scheduler<T> implements FutureCallback<Void> {
     private volatile boolean stop = false;
     private Auditor auditor = Auditor.getAuditor();
     private Thread acceptorThread;
@@ -93,17 +96,27 @@ public class Scheduler<T> {
                 String message = acceptor.take();
                 if (message != null) {
                     HandlerAdapter<T> handlerAdapter = new HandlerAdapter<T>(decode(message), handlers);
-                    dispatcher.dispatch(handlerAdapter);
-                    handleSucessAndCount();
+                    ListenableFuture<Void> future = dispatcher.dispatch(handlerAdapter);
+                    Futures.addCallback(future, this);
                     //auditor.info("[Scheduler][schedule] dispatch message: {}", message);
                 }
             } catch (InterruptedException e) {
                 auditor.info("[Scheduler][schedule] is interrupted");
             } catch (Exception e) {
-                this.failedCount.incrementAndGet();
                 auditor.error(e.getMessage(), e);
             }
         }
+    }
+
+    @Override
+    public void onSuccess(Void result) {
+        handleSucessAndCount();
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        this.failedCount.incrementAndGet();
+        auditor.error(t.getMessage(), t);
     }
 
     public T decode(String message) {

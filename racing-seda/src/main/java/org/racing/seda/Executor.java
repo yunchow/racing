@@ -1,8 +1,10 @@
 package org.racing.seda;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -13,10 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Executor {
     private final Auditor auditor = Auditor.getAuditor();
-    private ThreadPoolExecutor executorService;
+    private ThreadPoolExecutor threadPoolExecutor;
     private String name;
     private volatile int workSize = 5;
     private AtomicInteger nameCounter = new AtomicInteger(0);
+    protected ListeningExecutorService listeningExecutorService;
 
     public Executor(String name, int workSize) {
         this(name);
@@ -30,21 +33,21 @@ public class Executor {
     }
 
     public void execute(Runnable command) {
-        executorService.execute(command);
+        threadPoolExecutor.execute(command);
     }
 
-    public Future<?> submit(Runnable command) {
-        return executorService.submit(command);
+    public ListenableFuture<Void> submit(Runnable task) {
+        return (ListenableFuture<Void>) listeningExecutorService.submit(task);
     }
 
     public void shutdown() {
-        Preconditions.checkNotNull(executorService).shutdown();
+        Preconditions.checkNotNull(threadPoolExecutor).shutdown();
     }
 
     public void setWorkSize(int workSize) {
         Preconditions.checkState(workSize > 0);
-        executorService.setMaximumPoolSize(workSize * 2);
-        executorService.setCorePoolSize(workSize);
+        threadPoolExecutor.setMaximumPoolSize(workSize * 2);
+        threadPoolExecutor.setCorePoolSize(workSize);
     }
 
     /**
@@ -60,7 +63,7 @@ public class Executor {
      * @return
      */
     public int getCurrentWorkSize() {
-        return executorService.getPoolSize();
+        return threadPoolExecutor.getPoolSize();
     }
 
     /**
@@ -68,17 +71,18 @@ public class Executor {
      * @return
      */
     public int getMaxPoolSize() {
-        return executorService.getMaximumPoolSize();
+        return threadPoolExecutor.getMaximumPoolSize();
     }
 
     public long getTaskCount() {
-        return executorService.getQueue().size();
+        return threadPoolExecutor.getQueue().size();
     }
 
     public void initExecutor() {
-        executorService = new ThreadPoolExecutor(workSize, workSize * 2, 180, TimeUnit.SECONDS,
+        threadPoolExecutor = new ThreadPoolExecutor(workSize, workSize * 2, 180, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(), this::threadFactory, this::rejectedExecutionHandler);
-        executorService.allowCoreThreadTimeOut(true);
+        threadPoolExecutor.allowCoreThreadTimeOut(true);
+        listeningExecutorService = MoreExecutors.listeningDecorator(threadPoolExecutor);
     }
 
     private Thread threadFactory(Runnable r) {
@@ -87,5 +91,6 @@ public class Executor {
 
     private void rejectedExecutionHandler(Runnable r, ThreadPoolExecutor executor) {
         auditor.error("[Executor][rejectedExecutionHandler] {} reject task", name);
+        throw new IllegalStateException("[Executor][rejectedExecutionHandler] " + name + " reject task");
     }
 }
